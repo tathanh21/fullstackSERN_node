@@ -47,13 +47,31 @@ let getAllDoctors = () => {
         }
     })
 }
+let checkRequiedFields = (inputData) => {
+    let arrFields = ['doctorId', 'contentHTML', 'contentMarkdown', 'action', 'selectedPrice', 'selectedPayment', 'selectedProvince', 'nameClinic', 'addressClinic', 'note', 'specialtyId'];
+    let isValid = true;
+    let element = '';
+    for (let i = 0; i < arrFields.length; i++) {
+        if (!inputData[arrFields[i]]) {
+            isValid = false;
+            element = arrFields[i];
+            break;
+        }
+    }
+    return {
+        isValid: isValid,
+        element: element
+    }
+}
 let saveDetailInfoDoctor = (inputData) => {
     return new Promise(async (resolve, reject) => {
         try {
-            if (!inputData.doctorId || !inputData.contentHTML || !inputData.contentMarkdown || !inputData.action) {
+            let checkObj = checkRequiedFields(inputData);
+            console.log(checkObj)
+            if (checkObj.isValid === false) {
                 resolve({
                     errCode: 1,
-                    errMessage: 'Missing parameter'
+                    errMessage: `Missing parameter check obj ${checkObj.element}`
                 })
             } else {
                 if (inputData.action === 'CREATE') {
@@ -93,7 +111,8 @@ let saveDetailInfoDoctor = (inputData) => {
                     doctorInfo.nameClinic = inputData.nameClinic;
                     doctorInfo.addressClinic = inputData.addressClinic;
                     doctorInfo.note = inputData.note;
-
+                    doctorInfo.specialtyId = inputData.specialtyId;
+                    doctorInfo.clinicId = inputData.clinicId;
                     await doctorInfo.save()
                 } else {
                     //create
@@ -105,6 +124,8 @@ let saveDetailInfoDoctor = (inputData) => {
                         nameClinic: inputData.nameClinic,
                         addressClinic: inputData.addressClinic,
                         note: inputData.note,
+                        specialtyId: inputData.specialtyId,
+                        clinicId: inputData.clinicId
                     })
                 }
                 resolve({
