@@ -16,7 +16,7 @@ let getTopDoctorHome = (limitInput) => {
                 },
                 include: [
                     { model: db.Allcode, as: 'positionData', attributes: ['valueEn', 'valueVi'] },
-                    { model: db.Allcode, as: 'genderData', attributes: ['valueEn', 'valueVi'] }
+                    { model: db.Allcode, as: 'genderData', attributes: ['valueEn', 'valueVi'] },
                 ],
                 raw: true,
                 nest: true
@@ -263,6 +263,7 @@ let getScheduleByDate = (doctorId, date) => {
                     nest: true
                 })
                 if (!dataSchedule) data = [];
+                console.log('first date', dataSchedule)
                 resolve({
                     errCode: 0,
                     data: dataSchedule

@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      // Allcode.hasMany(models.Doctor_Info, { foreignKey: 'specialtyId', as: 'specialtyData' });
     }
   }
   Specialty.init({

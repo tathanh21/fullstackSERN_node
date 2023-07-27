@@ -1,5 +1,18 @@
 const db = require("../models/index");
+import bcrypt from "bcryptjs";
+const salt = bcrypt.genSaltSync(10);
 
+let hashUserPassword = (password) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            var hashPassword = await bcrypt.hashSync(password, salt);
+            resolve(hashPassword)
+        } catch (error) {
+            reject(error)
+        }
+
+    })
+}
 let handleUserLogin = (email, password) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -14,7 +27,10 @@ let handleUserLogin = (email, password) => {
                 })
                 if (user) {
                     //compare password
-                    let check = await password.localeCompare(user.password);
+                    // let check = await password.localeCompare(user.password);
+
+                    let check = await bcrypt.compareSync(password, user.password);
+
                     if (check) {
                         userData.errCode = 0;
                         userData.errMessage = `ok`,
@@ -81,6 +97,7 @@ let getAllUsers = (userId) => {
 let createNewUser = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
+            let hashPasswordFromBcrypt = await hashUserPassword(data.password);
             // check email  is exist
             let check = await checkUserEmail(data.email);
             if (check === true) {
@@ -91,7 +108,7 @@ let createNewUser = (data) => {
             } else {
                 await db.User.create({
                     email: data.email,
-                    password: data.password,
+                    password: hashPasswordFromBcrypt,
                     firstName: data.firstName,
                     lastName: data.lastName,
                     address: data.address,
@@ -103,7 +120,7 @@ let createNewUser = (data) => {
                 })
                 resolve({
                     errCode: 0,
-                    message: 'Ok'
+                    message: 'Create User Success!'
                 });
             }
 
@@ -120,7 +137,7 @@ let deleteUser = (userId) => {
         if (!user) {
             resolve({
                 errCode: 2,
-                errMessage: `The user  isn't exist`
+                errMessage: `The user isn't exist`
             })
         }
         await db.User.destroy({
@@ -128,13 +145,15 @@ let deleteUser = (userId) => {
         })
         resolve({
             errCode: 0,
-            message: `The user  isn deleted`
+            message: `The user is deleted`
         })
     })
 }
 let updateUserData = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
+            // console.log('check update', data)
+            // return
             if (!data.id || !data.roleId || !data.positionId || !data.gender) {
                 // console.log(data)
                 resolve({
@@ -160,7 +179,7 @@ let updateUserData = (data) => {
                 await user.save()
                 resolve({
                     errCode: 0,
-                    message: 'update user success'
+                    message: 'Update User Success'
                 });
             }
             else {

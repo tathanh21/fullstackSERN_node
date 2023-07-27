@@ -1,11 +1,13 @@
 const db = require("../models/index");
-
+import bcrypt from "bcryptjs";
+const salt = bcrypt.genSaltSync(10);
 let createNewUser = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
+            let hashPasswordFromBcrypt = await hashUserPassword(data.password);
             await db.User.create({
                 email: data.email,
-                password: data.password,
+                password: hashPasswordFromBcrypt,
                 firstName: data.firstName,
                 lastName: data.lastName,
                 address: data.address,
@@ -18,6 +20,17 @@ let createNewUser = (data) => {
         } catch (error) {
             reject(error);
         }
+    })
+}
+let hashUserPassword = (password) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            var hashPassword = await bcrypt.hashSync(password, salt);
+            resolve(hashPassword)
+        } catch (error) {
+            reject(error)
+        }
+
     })
 }
 let getAllUser = () => {
